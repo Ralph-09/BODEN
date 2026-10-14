@@ -37,30 +37,46 @@
         }
     </script>
 
-
-
 <script>
-  function probarNotificacion() {
-    // 1. Verificar si el navegador soporta notificaciones
+  async function probarNotificacion() {
     if (!("Notification" in window)) {
       alert("Tu navegador no soporta notificaciones.");
       return;
     }
 
-    // 2. Solicitar permiso al usuario
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        // 3. Enviar una notificación local de prueba
-        new Notification("BODEN Asesores Inmobiliarios", {
-          body: "¡La prueba de notificación funciona correctamente!",
-          icon: "https://boden-undz.onrender.com/favicon.ico"
+    // 1. Pedir permiso
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      alert("Permiso de notificaciones denegado.");
+      return;
+    }
+
+    // 2. Registrar el Service Worker e invocar la notificación desde él
+    if ("serviceWorker" in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.register("/sw.js");
+        
+        // Espera a que el Service Worker esté activo
+        await navigator.serviceWorker.ready;
+
+        // Mostrar la notificación a través del Service Worker (compatible con móviles)
+        await reg.showNotification("BODEN Asesores Inmobiliarios", {
+          body: "¡La prueba funciona correctamente en tu celular!",
+          icon: "https://boden-undz.onrender.com/favicon.ico",
+          vibrate: [200, 100, 200]
         });
-      } else {
-        alert("Permiso de notificaciones denegado.");
+      } catch (error) {
+        console.error("Error al registrar el Service Worker:", error);
+        alert("Error al mostrar notificación en celular.");
       }
-    });
+    }
   }
 </script>
+
+
+
+
+
 
 <!-- Botón visible para lanzar la prueba -->
 <button onclick="probarNotificacion()" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 10px 15px; background: #000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
