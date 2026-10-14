@@ -36,6 +36,41 @@
             }
         }
     </script>
+
+
+
+<script>
+  function probarNotificacion() {
+    // 1. Verificar si el navegador soporta notificaciones
+    if (!("Notification" in window)) {
+      alert("Tu navegador no soporta notificaciones.");
+      return;
+    }
+
+    // 2. Solicitar permiso al usuario
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        // 3. Enviar una notificación local de prueba
+        new Notification("BODEN Asesores Inmobiliarios", {
+          body: "¡La prueba de notificación funciona correctamente!",
+          icon: "https://boden-undz.onrender.com/favicon.ico"
+        });
+      } else {
+        alert("Permiso de notificaciones denegado.");
+      }
+    });
+  }
+</script>
+
+<!-- Botón visible para lanzar la prueba -->
+<button onclick="probarNotificacion()" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 10px 15px; background: #000; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+  Probador de Notificaciones
+</button>
+
+
+
+
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
