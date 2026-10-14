@@ -44,35 +44,37 @@
       return;
     }
 
-    // 1. Pedir permiso
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("Permiso de notificaciones denegado.");
-      return;
-    }
+    try {
+      // 1. Pedir permiso explícito
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        alert("Permiso denegado por el usuario.");
+        return;
+      }
 
-    // 2. Registrar el Service Worker e invocar la notificación desde él
-    if ("serviceWorker" in navigator) {
-      try {
-        const reg = await navigator.serviceWorker.register("/sw.js");
+      // 2. Comprobar Service Worker
+      if ("serviceWorker" in navigator) {
+        // Registrar sw.js
+        await navigator.serviceWorker.register("/sw.js");
         
-        // Espera a que el Service Worker esté activo
-        await navigator.serviceWorker.ready;
+        // Obtener la suscripción/registro activo
+        const reg = await navigator.serviceWorker.ready;
 
-        // Mostrar la notificación a través del Service Worker (compatible con móviles)
+        // 3. Disparar la notificación desde el registro activo (sin icono para asegurar compatibilidad)
         await reg.showNotification("BODEN Asesores Inmobiliarios", {
           body: "¡La prueba funciona correctamente en tu celular!",
-          icon: "https://boden-undz.onrender.com/favicon.ico",
-          vibrate: [200, 100, 200]
+          vibrate: [200, 100, 200],
+          tag: "prueba-boden"
         });
-      } catch (error) {
-        console.error("Error al registrar el Service Worker:", error);
-        alert("Error al mostrar notificación en celular.");
+      } else {
+        alert("Tu navegador móvil no tiene soporte para Service Workers.");
       }
+    } catch (error) {
+      alert("Error en el celular: " + error.message);
+      console.error(error);
     }
   }
 </script>
-
 
 
 
